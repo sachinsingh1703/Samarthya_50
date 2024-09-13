@@ -1,0 +1,64 @@
+from flask import Flask, render_template, request
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+from sklearn.preprocessing import StandardScaler
+
+app = Flask(__name__)
+
+# Load the trained model
+model = load_model('model_ddos.h5')
+
+# Initialize a scaler and a flag to track whether it's fitted
+scaler = StandardScaler()
+scaler_fitted = False
+
+# Function to extract features from the website link
+def extract_features(website_link):
+    # Extract features based on your requirements
+    # Here, we are using a simple example by taking the length of the URL
+    url_length = len(website_link)
+    return np.array([[url_length] * 10])  # Make sure to adjust the number of features
+
+# Function to preprocess input data for the model
+def preprocess_data(data):
+    global scaler, scaler_fitted
+
+    # Check if the scaler is fitted, if not, fit it
+    if not scaler_fitted:
+        scaler.fit(data)
+        scaler_fitted = True
+
+    # Preprocess the features
+    return scaler.transform(data)
+
+# Route for the home page
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        # Get the website link from the form
+        website_link = request.form['website_link']
+
+        # Extract features from the website link
+        features = extract_features(website_link)
+
+        # Ensure features have the correct shape (adjust based on your model)
+        features = np.reshape(features, (1, -1))
+
+        # Preprocess the features
+        features = preprocess_data(features)
+
+        # Make prediction using the trained model
+        prediction = model.predict(features)
+
+        # Determine if it's a DDoS attack based on the threshold (adjust as needed)
+        is_ddos_attack = prediction[0][0] > 0.5
+
+        # Render the results on the web page
+        return render_template('result.html', website_link=website_link, is_ddos_attack=is_ddos_attack)
+    
+    # Render the home page
+    return render_template('index.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)

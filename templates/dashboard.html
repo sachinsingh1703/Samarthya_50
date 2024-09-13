@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard</h1>
+        <form id="monitor-form">
+            <label for="website_link">Enter Website Link:</label>
+            <input type="text" id="website_link" name="website_link" required>
+            <button type="submit">Monitor</button>
+        </form>
+        <canvas id="network-graph" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+        const socket = io();
+        const ctx = document.getElementById('network-graph').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Packets Received',
+                    data: [],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        document.getElementById('monitor-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const website_link = document.getElementById('website_link').value;
+            socket.emit('monitor_website', { website_link: website_link });
+        });
+
+        socket.on('update_graph', function(data) {
+            const currentTime = new Date().toLocaleTimeString();
+            chart.data.labels.push(currentTime);
+            chart.data.datasets[0].data.push(data.packets_received);
+            chart.update();
+        });
+    </script>
+</body>
+</html>

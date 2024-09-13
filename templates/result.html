@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDoS Attack Detection Result</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #000428, #004e92);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+
+        p {
+            margin: 10px 0;
+            font-size: 1.1rem;
+        }
+
+        .result {
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-top: 20px;
+        }
+
+        .ddos-attack {
+            color: #dc3545;
+        }
+
+        .no-attack {
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DDoS Attack Detection Result</h1>
+        
+        <p>Website Link:</p>
+        <p>{{ website_link }}</p>
+        
+        {% if is_ddos_attack %}
+            <p class="result ddos-attack">DDoS Attack Detected!</p>
+        {% else %}
+            <p class="result no-attack">No DDoS Attack Detected</p>
+        {% endif %}
+    </div>
+</body>
+</html>
